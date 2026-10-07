@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#315bea">
+<title>CheckList – Smart Lists</title>
+<style>
+:root{
+  --bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#667085;
+  --primary:#315bea;--primary2:#2447c7;--soft:#eef2ff;--line:#e7eaf0;
+  --success:#16865b;--danger:#c43d3d;--shadow:0 10px 30px rgba(23,32,51,.08)
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+.top{background:linear-gradient(145deg,#172033,#315bea);color:#fff;padding:18px 16px 46px;border-radius:0 0 30px 30px}
+.wrap{max-width:920px;margin:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-weight:900;font-size:21px;letter-spacing:-.3px}
+.lang{display:flex;gap:4px;background:rgba(255,255,255,.13);padding:4px;border-radius:12px}
+.lang button{border:0;background:transparent;color:#dfe6ff;padding:7px 9px;border-radius:9px;font-weight:800;font-size:12px}
+.lang button.active{background:#fff;color:var(--primary)}
+.hero{padding:25px 2px 0}
+.hero h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.8px}
+.hero p{margin:0;color:#dce4ff;line-height:1.65;font-size:15px}
+main{max-width:920px;margin:-18px auto 0;padding:0 14px 50px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;background:#fff;padding:7px;border-radius:20px;box-shadow:var(--shadow)}
+.tab{border:0;background:#fff;color:var(--muted);border-radius:14px;padding:13px 5px;font-weight:850;font-size:13px}
+.tab.active{background:var(--soft);color:var(--primary)}
+.panel{margin-top:14px;background:var(--card);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.head h2{margin:0;font-size:23px;letter-spacing:-.4px}
+.sub{color:var(--muted);font-size:14px;line-height:1.65;margin:6px 0 0}
+.grid{display:grid;grid-template-columns:1.5fr .7fr;gap:12px;margin-top:18px}
+.field label{display:block;font-size:13px;font-weight:850;margin:0 0 7px}
+.field input,.qty-input{width:100%;border:1px solid #dfe4ec;background:#fff;border-radius:13px;padding:12px 13px;outline:none}
+.field input:focus,.qty-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px #315bea18}
+.section{font-size:18px;font-weight:900;margin:23px 0 10px}
+.people{display:grid;gap:10px}
+.person{border:1px solid var(--line);border-radius:18px;padding:14px;background:#fbfcff}
+.pt{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pill{background:var(--soft);color:var(--primary);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:850;white-space:nowrap}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:11px 14px;font-weight:850}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.primary:hover{background:var(--primary2)}
+.btn.danger{color:var(--danger)}
+.hint{margin-top:14px;background:#f8fafc;border:1px dashed #d6dce7;border-radius:15px;padding:12px 14px;color:#596579;line-height:1.65;font-size:13px}
+.block{margin-top:14px;border:1px solid var(--line);border-radius:19px;overflow:hidden}
+.blockhead{padding:14px;background:#f8faff;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rows{background:#fff}
+.row{display:grid;grid-template-columns:24px 1fr 88px;align-items:center;gap:10px;padding:11px 13px;border-top:1px solid var(--line)}
+.row input[type=checkbox]{width:20px;height:20px;accent-color:var(--primary)}
+.row.done .item-name{text-decoration:line-through;color:#98a2b3}
+.qty-wrap{display:flex;align-items:center;gap:5px}
+.qty-input{padding:8px 7px;text-align:center;font-weight:850}
+.unit{font-size:11px;color:var(--muted);white-space:nowrap}
+.empty{text-align:center;padding:18px;color:var(--muted);background:#fafbfc;border-radius:15px}
+.progress{height:8px;background:#edf0f5;border-radius:99px;overflow:hidden;margin-top:13px}
+.progress i{display:block;height:100%;background:var(--primary);border-radius:99px;width:0}
+.simple-row{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}
+.simple-row:last-child{border-bottom:0}
+.simple-row input{width:20px;height:20px;accent-color:var(--primary)}
+.simple-row.done span{text-decoration:line-through;color:#98a2b3}
+.note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
+@media(max-width:650px){
+  .tabs{grid-template-columns:repeat(2,1fr)}
+  .grid{grid-template-columns:1fr}
+  .hero h1{font-size:27px}
+  .row{grid-template-columns:24px 1fr 92px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="logo">✓ CheckList <span style="opacity:.65">Smart Lists</span></div>
+      <div class="lang" id="lang"></div>
+    </div>
+    <div class="hero">
+      <h1 id="heroTitle"></h1>
+      <p id="heroText"></p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="tabs" id="tabs"></div>
+  <section class="panel" id="panel"></section>
+</main>
+
+<script>
+const I18N={
+de:{
+  heroTitle:"Alles, was du brauchst – an einem Ort.",
+  heroText:"Plane Reisen, Schule, Baby und Einkauf schnell und übersichtlich.",
+  travel:"✈️ Reisen",school:"🎒 Schule",baby:"👶 Baby",market:"🛒 Einkauf",
+  travelTitle:"Reise vorbereiten",travelSub:"Ziel, Reisedauer und Personen eingeben. Die Checkliste wird automatisch vorgeschlagen.",
+  destination:"Reiseziel",days:"Wie viele Tage?",people:"Wer reist mit?",
+  addAdult:"+ Erwachsene",addChild:"+ Kind",addBaby:"+ Baby",make:"✨ Checkliste erstellen",
+  name:"Name",age:"Alter (Jahre)",delete:"Löschen",
+  emptyPeople:"Füge zuerst die Personen hinzu. Für jede Person wird eine eigene Checkliste erstellt.",
+  hint:"Die Mengen sind nur Vorschläge. Du kannst jede Zahl direkt ändern – z. B. 40 Windeln statt 30.",
+  checklist:"🧳 Checkliste pro Person",editable:"Die vorgeschlagenen Mengen kannst du jederzeit anpassen.",
+  complete:"erledigt",
+  units:{piece:"Stk.",pack:"Packung",pair:"Paar",bottle:"Flasche",bag:"Set",use:"nach Bedarf"},
+  types:{adult:"Erwachsene/r",child:"Kind",baby:"Baby"},
+  items:{
+    tshirt:"T-Shirts",bottom:"Shorts / Hosen",underwear:"Unterwäsche",pajama:"Schlafanzüge",socks:"Socken",
+    swim:"Badebekleidung",bra:"BHs",shoes:"Schuhe",sunglasses:"Sonnenbrille",daycream:"Gesichtscreme Tag",
+    nightcream:"Gesichtscreme Nacht",sunscreen:"Sonnencreme",towel:"Strandhandtuch",meds:"Persönliche Medikamente",
+    charger:"Handyladegerät",diaper:"Windeln",wipes:"Feuchttücher",outfit:"Komplette Outfits",body:"Bodys / Unterwäsche",
+    hat:"Sonnenhut",babySun:"Baby-Sonnencreme",diaperCream:"Wundschutzcreme",bottle:"Babyflaschen",milk:"Milch / Nahrung",
+    pacifier:"Schnuller",blanket:"Decke",stroller:"Kinderwagen / Autositz",schoolBag:"Schultasche",notebooks:"Hefte",
+    pens:"Stifte & Farben",pencil:"Mäppchen",water:"Trinkflasche",lunch:"Brotdose",extra:"Ersatzkleidung",
+    sport:"Sportschuhe",marketMilk:"Milch",eggs:"Eier",bread:"Brot",rice:"Reis",pasta:"Nudeln",
+    vegetables:"Gemüse",fruit:"Obst",meat:"Fleisch / Hähnchen",yogurt:"Joghurt",cheese:"Käse",
+    waterMarket:"Wasser",tissues:"Taschentücher",cleaner:"Reinigungsmittel"
+  }
+},
+ar:{
+  heroTitle:"كل شي لازمك بمكان واحد.",
+  heroText:"حضّر السفر، المدرسة، البيبي والسوبرماركت بطريقة مرتبة وسريعة.",
+  travel:"✈️ السفر",school:"🎒 المدرسة",baby:"👶 البيبي",market:"🛒 السوبرماركت",
+  travelTitle:"تجهيز السفر",travelSub:"حط الوجهة وعدد الأيام والأشخاص، والـChecklist بتتكوّن تلقائياً.",
+  destination:"الوجهة",days:"كم يوم؟",people:"مين مسافر؟",
+  addAdult:"+ بالغ",addChild:"+ طفل",addBaby:"+ بيبي",make:"✨ اعمل الـChecklist",
+  name:"الاسم",age:"العمر (سنوات)",delete:"حذف",
+  emptyPeople:"أضف الأشخاص أولاً. لكل شخص رح نعمل Checklist خاصة فيه.",
+  hint:"الكميات اقتراحات فقط. فيك تعدّل أي رقم مباشرة، مثلاً 40 حفاضة بدل 30.",
+  checklist:"🧳 Checklist لكل شخص",editable:"فينا نعدّل كل كمية بأي وقت.",
+  complete:"مكتمل",
+  units:{piece:"قطعة",pack:"عبوة",pair:"زوج",bottle:"عبوة",bag:"حقيبة",use:"حسب الحاجة"},
+  types:{adult:"بالغ",child:"طفل",baby:"بيبي"},
+  items:{
+    tshirt:"تيشيرتات",bottom:"شورتات / بناطيل",underwear:"ملابس داخلية",pajama:"بيجاما",socks:"جوارب",
+    swim:"ملابس سباحة",bra:"برا",shoes:"أحذية",sunglasses:"عوينات شمس",daycream:"كريم وجه نهار",
+    nightcream:"كريم وجه ليل",sunscreen:"كريم شمس",towel:"منشفة بحر",meds:"أدوية شخصية",
+    charger:"شاحن الهاتف",diaper:"حفاضات",wipes:"مناديل مبللة",outfit:"ملابس كاملة",body:"بودي / ملابس داخلية",
+    hat:"قبعة شمس",babySun:"كريم شمس للبيبي",diaperCream:"كريم حفاض",bottle:"رضّاعات",milk:"حليب / غذاء",
+    pacifier:"مصّاصات",blanket:"بطانية",stroller:"عربة / كرسي سيارة",schoolBag:"حقيبة المدرسة",notebooks:"دفاتر",
+    pens:"أقلام وألوان",pencil:"مقلمة",water:"قارورة ماء",lunch:"علبة طعام",extra:"ملابس احتياطية",
+    sport:"حذاء رياضي",marketMilk:"حليب",eggs:"بيض",bread:"خبز",rice:"أرز",pasta:"معكرونة",
+    vegetables:"خضار",fruit:"فواكه",meat:"دجاج / لحم",yogurt:"زبادي",cheese:"جبنة",
+    waterMarket:"مياه",tissues:"مناديل",cleaner:"منظفات"
+  }
+},
+en:{
+  heroTitle:"Everything you need – in one place.",
+  heroText:"Plan travel, school, baby and shopping quickly and clearly.",
+  travel:"✈️ Travel",school:"🎒 School",baby:"👶 Baby",market:"🛒 Shopping",
+  travelTitle:"Prepare your trip",travelSub:"Enter the destination, trip length and people. Your checklist is generated automatically.",
+  destination:"Destination",days:"How many days?",people:"Who is travelling?",
+  addAdult:"+ Adult",addChild:"+ Child",addBaby:"+ Baby",make:"✨ Create checklist",
+  name:"Name",age:"Age (years)",delete:"Delete",
+  emptyPeople:"Add the people first. Each person gets their own checklist.",
+  hint:"Quantities are suggestions only. You can change every number directly – e.g. 40 diapers instead of 30.",
+  checklist:"🧳 Checklist per person",editable:"You can adjust every quantity at any time.",
+  complete:"done",
+  units:{piece:"pcs.",pack:"pack",pair:"pairs",bottle:"bottle",bag:"set",use:"as needed"},
+  types:{adult:"Adult",child:"Child",baby:"Baby"},
+  items:{
+    tshirt:"T-shirts",bottom:"Shorts / trousers",underwear:"Underwear",pajama:"Pyjamas",socks:"Socks",
+    swim:"Swimwear",bra:"Bras",shoes:"Shoes",sunglasses:"Sunglasses",daycream:"Face cream – day",
+    nightcream:"Face cream – night",sunscreen:"Sunscreen",towel:"Beach towel",meds:"Personal medication",
+    charger:"Phone charger",diaper:"Diapers",wipes:"Wet wipes",outfit:"Complete outfits",body:"Bodys / underwear",
+    hat:"Sun hat",babySun:"Baby sunscreen",diaperCream:"Nappy cream",bottle:"Baby bottles",milk:"Milk / food",
+    pacifier:"Pacifiers",blanket:"Blanket",stroller:"Stroller / car seat",schoolBag:"School bag",notebooks:"Notebooks",
+    pens:"Pens & colours",pencil:"Pencil case",water:"Water bottle",lunch:"Lunch box",extra:"Spare clothes",
+    sport:"Sports shoes",marketMilk:"Milk",eggs:"Eggs",bread:"Bread",rice:"Rice",pasta:"Pasta",
+    vegetables:"Vegetables",fruit:"Fruit",meat:"Chicken / meat",yogurt:"Yoghurt",cheese:"Cheese",
+    waterMarket:"Water",tissues:"Tissues",cleaner:"Cleaning products"
+  }
+}
+};
+
+const otherKeys={
+school:["schoolBag","notebooks","pens","pencil","water","lunch","extra","sport","tissues","sunscreen"],
+baby:["diaper","wipes","diaperCream","body","bottle","milk","pacifier","blanket","towel","meds","stroller"],
+market:["marketMilk","eggs","bread","rice","pasta","vegetables","fruit","meat","yogurt","cheese","waterMarket","tissues","cleaner","diaper"]
+};
+
+let S=JSON.parse(localStorage.getItem("smartTravelV3")||"null")||{
+  lang:"de",dest:"",days:3,people:[],made:false,qty:{}
+};
+let cur="travel";
+const save=()=>localStorage.setItem("smartTravelV3",JSON.stringify(S));
+const T=()=>I18N[S.lang]||I18N.de;
+const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const unit=k=>T().units[k]||T().units.piece;
+const typeName=t=>T().types[t];
+const personName=(p,i)=>p.name||(`${typeName(p.type)} ${i+1}`);
+
+function setLanguage(lang){
+  S.lang=lang; save(); document.documentElement.lang=lang; document.documentElement.dir=lang==="ar"?"rtl":"ltr"; render();
+}
+
+function drawLang(){
+  document.querySelector("#lang").innerHTML=["de","en","ar"].map(l=>`<button class="${S.lang===l?"active":""}" data-lang="${l}">${l.toUpperCase()}</button>`).join("");
+  document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>setLanguage(b.dataset.lang));
+}
+
+function drawTabs(){
+  const t=T();
+  document.querySelector("#tabs").innerHTML=[
+    ["travel",t.travel],["school",t.school],["baby",t.baby],["market",t.market]
+  ].map(x=>`<button class="tab ${cur===x[0]?"active":""}" data-k="${x[0]}">${x[1]}</button>`).join("");
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{cur=b.dataset.k;render()});
+}
+
+function addPerson(type){
+  S.people.push({type,name:"",age:type==="baby"?0:type==="child"?6:30});
+  S.made=false; save(); render();
+}
+
+function suggested(p,days){
+  const d=Math.max(1,+days||1), age=+p.age||0;
+  if(p.type==="baby" || age<2) return [
+    ["diaper",d*6,"piece"],["wipes",Math.max(1,Math.ceil(d/3)),"pack"],["outfit",Math.ceil(d*.7)+2,"piece"],
+    ["body",Math.ceil(d*.7)+2,"piece"],["pajama",Math.max(2,Math.ceil(d/2)),"piece"],["socks",Math.max(2,d+1),"pair"],
+    ["swim",Math.max(2,Math.ceil(d*.5)+1),"piece"],["hat",1,"piece"],["babySun",1,"pack"],["diaperCream",1,"pack"],
+    ["bottle",3,"piece"],["milk",d+1,"pack"],["towel",2,"piece"],["pacifier",2,"piece"],["stroller",1,"use"]
+  ];
+  if(p.type==="child" || age<13) return [
+    ["tshirt",Math.ceil(d*.5)+2,"piece"],["bottom",Math.max(2,Math.ceil(d*.4)+1),"piece"],
+    ["underwear",d+2,"piece"],["pajama",Math.max(2,Math.ceil(d/2)),"piece"],["socks",Math.ceil(d*.6)+1,"pair"],
+    ["swim",Math.max(2,Math.ceil(d*.5)+1),"piece"],["shoes",2,"pair"],["hat",1,"piece"],
+    ["sunglasses",1,"piece"],["sunscreen",1,"pack"],["towel",1,"piece"],["meds",1,"bag"]
+  ];
+  return [
+    ["tshirt",Math.ceil(d*.5)+2,"piece"],["bottom",Math.max(2,Math.ceil(d*.4)+1),"piece"],
+    ["underwear",d+1,"piece"],["pajama",Math.max(2,Math.ceil(d/2)),"piece"],["socks",Math.ceil(d*.6)+1,"pair"],
+    ["swim",Math.max(2,Math.ceil(d*.5)+1),"piece"],["bra",Math.ceil(d*.5)+1,"piece"],["shoes",2,"pair"],
+    ["sunglasses",1,"piece"],["daycream",1,"pack"],["nightcream",1,"pack"],["sunscreen",1,"pack"],
+    ["towel",1,"piece"],["meds",1,"bag"],["charger",1,"piece"]
+  ];
+}
+
+function getQty(pi,key,base){
+  const id=pi+"_"+key;
+  return S.qty[id]??base;
+}
+function setQty(pi,key,val){
+  const id=pi+"_"+key;
+  S.qty[id]=Math.max(0,parseInt(val||0,10));
+  save();
+}
+
+function checklist(){
+  const t=T();
+  let h=`<div class="section">${t.checklist}</div><div class="hint">${t.editable}</div>`;
+  S.people.forEach((p,i)=>{
+    const arr=suggested(p,S.days);
+    const done=JSON.parse(localStorage.getItem("doneV3_"+i)||"[]");
+    const finished=arr.filter((x,j)=>done.includes(j)).length;
+    const pct=arr.length?Math.round(finished/arr.length*100):0;
+    h+=`<div class="block">
+      <div class="blockhead">
+        <div><b>${esc(personName(p,i))}</b><div class="note">${finished}/${arr.length} ${t.complete}</div></div>
+        <span class="pill">${typeName(p.type)}</span>
+      </div>
+      <div class="progress"><i style="width:${pct}%"></i></div>
+      <div class="rows">`;
+    arr.forEach((x,j)=>{
+      const qty=getQty(i,x[0],x[1]);
+      h+=`<div class="row ${done.includes(j)?"done":""}">
+        <input type="checkbox" data-ci="${i}" data-ii="${j}" ${done.includes(j)?"checked":""}>
+        <span class="item-name">${esc(t.items[x[0]])}</span>
+        <div class="qty-wrap">
+          <input class="qty-input" type="number" min="0" value="${qty}" data-qi="${i}" data-qk="${x[0]}">
+          <span class="unit">${unit(x[2])}</span>
+        </div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  });
+  return h;
+}
+
+function personCard(p,i){
+  const t=T();
+  return `<div class="person">
+    <div class="pt"><b>${esc(personName(p,i))}</b><span class="pill">${typeName(p.type)}</span></div>
+    <div class="grid">
+      <div class="field"><label>${t.name}</label><input data-p="${i}" data-f="name" value="${esc(p.name)}" placeholder="${S.lang==="de"?"z. B. Adam":S.lang==="en"?"e.g. Adam":"مثلاً آدم"}"></div>
+      <div class="field"><label>${t.age}</label><input data-p="${i}" data-f="age" type="number" min="0" max="100" value="${p.age}"></div>
+    </div>
+    <div class="actions"><button class="btn danger" data-del="${i}">${t.delete}</button></div>
+  </div>`;
+}
+
+function simple(k){
+  const t=T(), title={school:t.school,baby:t.baby,market:t.market}[k];
+  const key="simpleV3_"+k, a=JSON.parse(localStorage.getItem(key)||"[]");
+  return `<div class="head"><div><h2>${title}</h2><p class="sub">${S.lang==="de"?"Einfach abhaken und fertig.":S.lang==="en"?"Check items off as you go.":"علّم على الأغراض اللي خلصت."}</p></div></div>`+
+    otherKeys[k].map((x,i)=>`<label class="simple-row ${a.includes(i)?"done":""}">
+      <input type="checkbox" data-si="${i}" ${a.includes(i)?"checked":""}><span>${t.items[x]}</span>
+    </label>`).join("");
+}
+
+function render(){
+  const t=T();
+  document.documentElement.lang=S.lang;
+  document.documentElement.dir=S.lang==="ar"?"rtl":"ltr";
+  document.querySelector("#heroTitle").textContent=t.heroTitle;
+  document.querySelector("#heroText").textContent=t.heroText;
+  drawLang(); drawTabs();
+  const panel=document.querySelector("#panel");
+
+  if(cur!=="travel"){
+    panel.innerHTML=simple(cur);
+    const key="simpleV3_"+cur;
+    document.querySelectorAll("[data-si]").forEach(c=>c.onchange=()=>{
+      let a=JSON.parse(localStorage.getItem(key)||"[]");
+      a=c.checked?[...new Set([...a,+c.dataset.si])]:a.filter(i=>i!==+c.dataset.si);
+      localStorage.setItem(key,JSON.stringify(a)); render();
+    });
+    return;
+  }
+
+  panel.innerHTML=`
+    <div class="head">
+      <div><h2>${t.travelTitle}</h2><p class="sub">${t.travelSub}</p></div>
+    </div>
+
+    <div class="grid">
+      <div class="field"><label>📍 ${t.destination}</label><input id="dest" value="${esc(S.dest)}" placeholder="${S.lang==="de"?"z. B. Mallorca":S.lang==="en"?"e.g. Mallorca":"مثلاً مالوركا"}"></div>
+      <div class="field"><label>📅 ${t.days}</label><input id="days" type="number" min="1" max="60" value="${S.days}"></div>
+    </div>
+
+    <div class="section">👨‍👩‍👧‍👦 ${t.people}</div>
+    <div class="people">${S.people.length?S.people.map(personCard).join(""):`<div class="empty">${t.emptyPeople}</div>`}</div>
+
+    <div class="actions">
+      <button class="btn" id="adult">${t.addAdult}</button>
+      <button class="btn" id="child">${t.addChild}</button>
+      <button class="btn" id="baby">${t.addBaby}</button>
+      <button class="btn primary" id="make">${t.make}</button>
+    </div>
+
+    <div class="hint">${t.hint}</div>
+    ${S.made?checklist():""}
+  `;
+
+  document.querySelector("#dest").oninput=e=>{S.dest=e.target.value;save()};
+  document.querySelector("#days").oninput=e=>{S.days=Math.max(1,+e.target.value||1);S.made=false;save()};
+  document.querySelector("#adult").onclick=()=>addPerson("adult");
+  document.querySelector("#child").onclick=()=>addPerson("child");
+  document.querySelector("#baby").onclick=()=>addPerson("baby");
+
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.del; S.people.splice(i,1); S.made=false; save(); render();
+  });
+  document.querySelectorAll("[data-p]").forEach(x=>x.oninput=()=>{
+    S.people[+x.dataset.p][x.dataset.f]=x.value; S.made=false; save();
+  });
+  document.querySelector("#make").onclick=()=>{
+    if(!S.dest) return alert(S.lang==="de"?"Bitte Reiseziel eingeben.":S.lang==="en"?"Please enter a destination.":"اكتب الوجهة أولاً.");
+    if(!S.people.length) return alert(S.lang==="de"?"Bitte mindestens eine Person hinzufügen.":S.lang==="en"?"Add at least one person.":"أضف شخصاً واحداً على الأقل.");
+    S.made=true; save(); render();
+  };
+
+  document.querySelectorAll("[data-ci]").forEach(c=>c.onchange=()=>{
+    const k="doneV3_"+c.dataset.ci;
+    let a=JSON.parse(localStorage.getItem(k)||"[]");
+    a=c.checked?[...new Set([...a,+c.dataset.ii])]:a.filter(i=>i!==+c.dataset.ii);
+    localStorage.setItem(k,JSON.stringify(a)); render();
+  });
+  document.querySelectorAll("[data-qi]").forEach(q=>q.onchange=()=>{
+    setQty(+q.dataset.qi,q.dataset.qk,q.value); render();
+  });
+}
+render();
+</script>
+</body>
+</html>
