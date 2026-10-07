@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#315bea">
+<title>CheckList Smart Travel</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#182230;--muted:#667085;--accent:#315bea;--soft:#eef2ff;--line:#e8ebf1}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button,input{font:inherit}header{background:linear-gradient(145deg,#182230,#315bea);color:white;padding:25px 18px 34px;border-radius:0 0 28px 28px}
+.wrap,main{max-width:900px;margin:auto}.brand{font-size:23px;font-weight:900}.hero{margin-top:20px}.hero h1{font-size:28px;margin:0 0 7px}.hero p{margin:0;color:#dbe4ff;line-height:1.7}
+main{padding:0 14px 45px;margin-top:-13px}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:white;padding:8px;border-radius:20px;box-shadow:0 8px 28px #18223012}
+.tab{border:0;background:transparent;border-radius:14px;padding:13px 4px;font-weight:800;color:var(--muted)}.tab.active{background:var(--soft);color:var(--accent)}
+.panel{margin-top:15px;background:white;border-radius:22px;padding:18px;box-shadow:0 8px 28px #1822300c}.head{display:flex;justify-content:space-between;align-items:center}.head h2{margin:0;font-size:23px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:15px}.field label{display:block;font-weight:800;margin-bottom:7px}.field input{width:100%;border:1px solid #dfe3ea;border-radius:12px;padding:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.btn{border:1px solid var(--line);background:white;border-radius:12px;padding:11px 14px;font-weight:800}.primary{background:var(--accent);color:white;border-color:var(--accent)}
+.people{display:grid;gap:12px;margin-top:12px}.person{border:1px solid var(--line);border-radius:18px;padding:14px;background:#fbfcff}.pt{display:flex;justify-content:space-between;align-items:center}.pill{background:var(--soft);color:var(--accent);border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800}
+.section{font-size:18px;font-weight:900;margin:22px 0 10px}.hint{background:#f8fafc;border:1px dashed #d7dce5;padding:12px;border-radius:14px;line-height:1.7;margin-top:14px}
+.block{margin-top:14px;border:1px solid var(--line);border-radius:18px;overflow:hidden}.blockhead{padding:14px;background:#f8faff;display:flex;justify-content:space-between}.row{display:flex;align-items:center;gap:10px;padding:13px 14px;border-top:1px solid var(--line)}.row input{width:21px;height:21px;accent-color:var(--accent)}.done{text-decoration:line-through;color:#98a2b3}.qty{margin-right:auto;color:var(--muted);font-size:13px;font-weight:700}
+.photo{border:2px dashed #cbd5e1;border-radius:18px;padding:20px;text-align:center;background:#f8fafc}.photo input{display:none}.photo label{display:inline-block;background:white;border:1px solid var(--line);border-radius:12px;padding:12px;font-weight:800}.preview{max-width:100%;max-height:270px;border-radius:14px;margin-top:14px;display:none}.result{margin-top:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px;line-height:1.7}
+.empty{text-align:center;padding:20px;color:var(--muted)}@media(max-width:600px){.tabs{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="brand">✓ CheckList <span style="opacity:.7">• Smart Lists</span></div>
+<div class="hero"><h1>كل شي لازمك بمكان واحد</h1><p>حضّر سفرتك حسب الأيام والأشخاص والأعمار، والقائمة بتتكوّن لحالها.</p></div></div></header>
+<main><div class="tabs" id="tabs"></div><section class="panel" id="panel"></section></main>
+<script>
+const other={
+school:["حقيبة المدرسة","دفاتر","أقلام وألوان","مقلمة","قارورة ماء","علبة طعام","ملابس احتياطية","حذاء رياضي","مناديل","واقي شمس"],
+baby:["حفاضات","مناديل مبللة","كريم الحفاض","ملابس للبيبي","رضّاعة","حليب","مصّاصة","بطانية","منشفة","ميزان حرارة","أدوية موصوفة","عربة الأطفال"],
+market:["حليب","بيض","خبز","أرز","معكرونة","خضار","فواكه","دجاج / لحم","زبادي","جبنة","مياه","مناديل","منظفات","حفاضات"]};
+let S=JSON.parse(localStorage.getItem("smartTravel")||"null")||{dest:"",days:3,people:[],made:false},cur="travel";
+const save=()=>localStorage.setItem("smartTravel",JSON.stringify(S));
+const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const typeName=t=>t=="baby"?"بيبي":t=="child"?"طفل":"بالغ";
+const personName=(p,i)=>p.name||((p.type=="baby"?"البيبي":p.type=="child"?"الولد":"بالغ")+" "+(i+1));
+
+function drawTabs(){
+document.querySelector("#tabs").innerHTML=[["travel","✈️ السفر"],["school","🎒 المدرسة"],["baby","👶 البيبي"],["market","🛒 السوبرماركت"]].map(x=>`<button class="tab ${cur==x[0]?"active":""}" data-k="${x[0]}">${x[1]}</button>`).join("");
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{cur=b.dataset.k;render()});
+}
+function addPerson(type){S.people.push({type,name:"",age:type=="baby"?0:type=="child"?6:30});S.made=false;save();render()}
+function personCard(p,i){
+return `<div class="person"><div class="pt"><b>${esc(personName(p,i))}</b><span class="pill">${typeName(p.type)}</span></div>
+<div class="grid"><div class="field"><label>الاسم</label><input data-p="${i}" data-f="name" value="${esc(p.name)}" placeholder="مثلاً أحمد"></div>
+<div class="field"><label>العمر (سنوات)</label><input data-p="${i}" data-f="age" type="number" min="0" value="${p.age}"></div></div>
+<div class="actions"><button class="btn" data-del="${i}">حذف</button></div></div>`;
+}
+function suggested(p,days){
+let d=Math.max(1,+days||1), age=+p.age||0;
+if(p.type=="baby"||age<2)return [
+["حفاضات",d*6,"قطعة"],["مناديل مبللة",Math.max(1,Math.ceil(d/3)),"عبوة"],["ملابس كاملة",d+2,"طقم"],
+["بودي/ملابس داخلية",d+2,"قطعة"],["بيجاما",Math.max(2,Math.ceil(d/2)),"قطعة"],["جوارب",d+1,"زوج"],
+["لباس بحر",2,"قطعة"],["قبعة شمس",1,"قطعة"],["كريم شمس للبيبي",1,"عبوة"],["كريم الحفاض",1,"عبوة"],
+["رضّاعات",3,"قطعة"],["حليب",d+1,"حسب الاستهلاك"],["منشفة",2,"قطعة"],["مصّاصة",2,"قطعة"],["عربة/كرسي سيارة",1,"حسب الحاجة"]];
+if(p.type=="child"||age<13)return [
+["تيشيرتات",d+1,"قطعة"],["شورتات/بنطلونات",d+1,"قطعة"],["ملابس داخلية",d+2,"قطعة"],["بيجاما",Math.max(2,Math.ceil(d/2)),"قطعة"],
+["جوارب",d+1,"زوج"],["لباس بحر",2,"قطعة"],["حذاء",2,"زوج"],["قبعة",1,"قطعة"],["عوينات شمس",1,"قطعة"],["كريم شمس",1,"عبوة"],["منشفة بحر",1,"قطعة"],["أدوية شخصية",1,"حقيبة"]];
+return [
+["تيشيرتات",d+1,"قطعة"],["شورتات/بنطلونات",d+1,"قطعة"],["بوكسر/كيلوت",d+1,"قطعة"],["بيجاما",Math.max(2,Math.ceil(d/2)),"قطعة"],
+["جوارب",d+1,"زوج"],["لباس بحر",2,"قطعة"],["برا",d+1,"قطعة"],["حذاء",2,"زوج"],["عوينات شمس",1,"قطعة"],
+["كريم للوجه نهار",1,"عبوة"],["كريم للوجه ليل",1,"عبوة"],["كريم شمس",1,"عبوة"],["منشفة بحر",1,"قطعة"],["أدوية شخصية",1,"حقيبة"],["شاحن الهاتف",1,"قطعة"]];
+}
+function checklist(){
+let h=`<div class="section">🧳 Checklist لكل شخص</div><div class="hint">الكميات مقترحة تلقائياً حسب عدد الأيام والعمر. فيك تعدّلها لاحقاً.</div>`;
+S.people.forEach((p,i)=>{let ar=suggested(p,S.days),done=JSON.parse(localStorage.getItem("done_"+i)||"[]");
+h+=`<div class="block"><div class="blockhead"><b>${esc(personName(p,i))}</b><span class="pill">${typeName(p.type)}</span></div>`;
+ar.forEach((x,j)=>h+=`<label class="row ${done.includes(j)?"done":""}"><input type="checkbox" data-ci="${i}" data-ii="${j}" ${done.includes(j)?"checked":""}><span>${x[0]}</span><span class="qty">${x[1]} ${x[2]}</span></label>`);
+h+="</div>"});return h;
+}
+function photoBox(){
+return `<div class="section">📸 صوّر الأغراض اللي حضرتها</div><div class="photo"><div style="font-size:30px">📷</div><b>صوّر الحقيبة أو الأغراض</b><p style="color:#667085">التطبيق يستقبل الصورة، والمرحلة التالية نربطها بفحص AI حقيقي ليطابق الموجود مع الـ Checklist.</p>
+<label for="photo">📷 التقاط/اختيار صورة</label><input id="photo" type="file" accept="image/*" capture="environment"><img id="preview" class="preview">
+<button id="scan" class="btn primary" style="display:none;margin-top:12px">🔎 فحص الصورة</button><div id="result" class="result" style="display:none"></div></div>`;
+}
+function simple(k){
+let titles={school:"🎒 المدرسة",baby:"👶 البيبي",market:"🛒 السوبرماركت"},key="simple_"+k,a=JSON.parse(localStorage.getItem(key)||"[]");
+return `<div class="head"><h2>${titles[k]}</h2></div>`+other[k].map((x,i)=>`<label class="row ${a.includes(i)?"done":""}"><input type="checkbox" data-si="${i}" ${a.includes(i)?"checked":""}><span>${x}</span></label>`).join("");
+}
+function render(){
+drawTabs();const panel=document.querySelector("#panel");
+if(cur!="travel"){panel.innerHTML=simple(cur);let key="simple_"+cur;document.querySelectorAll("[data-si]").forEach(c=>c.onchange=()=>{let a=JSON.parse(localStorage.getItem(key)||"[]");a=c.checked?[...new Set([...a,+c.dataset.si])]:a.filter(i=>i!=+c.dataset.si);localStorage.setItem(key,JSON.stringify(a));render()});return}
+panel.innerHTML=`<div class="head"><h2>✈️ تجهيز السفر</h2></div>
+<div class="grid"><div class="field"><label>📍 لوين رايح؟</label><input id="dest" value="${esc(S.dest)}" placeholder="مثلاً Mallorca"></div>
+<div class="field"><label>📅 كم يوم؟</label><input id="days" type="number" min="1" max="60" value="${S.days}"></div></div>
+<div class="section">👨‍👩‍👧‍👦 مين مسافر؟</div><div class="people">${S.people.length?S.people.map(personCard).join(""):`<div class="empty">أضف الأشخاص، وأنا بعمل لكل واحد Checklist حسب عمره.</div>`}</div>
+<div class="actions"><button class="btn" id="adult">+ بالغ</button><button class="btn" id="child">+ ولد</button><button class="btn" id="baby">+ بيبي</button><button class="btn primary" id="make">✨ اعمل الـ Checklist</button></div>
+<div class="hint">مثال 3 أيام: للبالغ 4 تيشيرتات و4 شورتات و4 قطع داخلية تقريباً. للبيبي 6 حفاظات تقريباً باليوم. الأرقام اقتراحات قابلة للتعديل.</div>
+${S.made?checklist():""}${photoBox()}`;
+document.querySelector("#dest").oninput=e=>{S.dest=e.target.value;save()};
+document.querySelector("#days").oninput=e=>{S.days=Math.max(1,+e.target.value||1);S.made=false;save()};
+document.querySelector("#adult").onclick=()=>addPerson("adult");document.querySelector("#child").onclick=()=>addPerson("child");document.querySelector("#baby").onclick=()=>addPerson("baby");
+document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{S.people.splice(+b.dataset.del,1);S.made=false;save();render()});
+document.querySelectorAll("[data-p]").forEach(x=>x.oninput=()=>{S.people[+x.dataset.p][x.dataset.f]=x.value;S.made=false;save()});
+document.querySelector("#make").onclick=()=>{if(!S.dest)return alert("اكتب لوين رايح 📍");if(!S.people.length)return alert("أضف شخص واحد على الأقل 👨‍👩‍👧‍👦");S.made=true;save();render()};
+document.querySelectorAll("[data-ci]").forEach(c=>c.onchange=()=>{let k="done_"+c.dataset.ci,a=JSON.parse(localStorage.getItem(k)||"[]");a=c.checked?[...new Set([...a,+c.dataset.ii])]:a.filter(i=>i!=+c.dataset.ii);localStorage.setItem(k,JSON.stringify(a));render()});
+let f=document.querySelector("#photo");if(f)f.onchange=e=>{let file=e.target.files[0];if(!file)return;let p=document.querySelector("#preview");p.src=URL.createObjectURL(file);p.style.display="block";document.querySelector("#scan").style.display="inline-block"};
+let sc=document.querySelector("#scan");if(sc)sc.onclick=()=>{let r=document.querySelector("#result");r.style.display="block";r.innerHTML="📌 <b>الصورة وصلت.</b><br>واجهة التصوير جاهزة. ليتعرّف التطبيق فعلياً على الأغراض داخل الصورة ويعلّم الموجود تلقائياً، سنربطها بخدمة ذكاء اصطناعي في الخطوة التالية.";};
+}
+render();
+</script>
+</body>
+</html>
