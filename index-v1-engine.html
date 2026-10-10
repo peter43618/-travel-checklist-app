@@ -1,0 +1,156 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CheckList Smart Travel Engine V1</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6fb;color:#182238;font-family:Arial,sans-serif}header{background:linear-gradient(135deg,#172033,#315bea);color:white;padding:22px 16px 42px;border-radius:0 0 26px 26px}.wrap,main{max-width:900px;margin:auto}main{padding:0 14px 40px;margin-top:-17px}.bar{display:flex;justify-content:space-between;gap:10px}.langs button{padding:7px;border:0;border-radius:8px}.hero{padding:22px 0 0}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:white;padding:7px;border-radius:17px}.tab{padding:12px 4px;border:0;border-radius:10px;background:white;font-weight:bold}.active{background:#eef2ff;color:#315bea}.locked{opacity:.45}.panel{background:white;border-radius:20px;padding:17px;margin-top:14px;box-shadow:0 8px 24px #0001}.grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:10px;margin:14px 0}.field label{display:block;font-size:13px;font-weight:bold;margin-bottom:5px}.field input,.field select,.qty{width:100%;padding:10px;border:1px solid #dce2ec;border-radius:10px}.person{border:1px solid #e6eaf1;border-radius:14px;padding:12px;margin:8px 0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.btn{padding:10px 12px;border:1px solid #dce2ec;background:white;border-radius:10px;font-weight:bold}.primary{background:#315bea;color:white}.section{font-size:18px;font-weight:bold;margin:22px 0 9px}.muted{color:#687386;font-size:13px;line-height:1.5}.weather{margin-top:14px;padding:13px;background:#f5f8ff;border-radius:13px}.acc{border:1px solid #e6eaf1;border-radius:14px;margin:9px 0;overflow:hidden}.acchead{padding:14px;width:100%;border:0;background:white;text-align:left;font-weight:bold;display:flex;justify-content:space-between}.accbody{display:none;border-top:1px solid #eee}.acc.open .accbody{display:block}.progress{height:5px;background:#eee;margin:12px}.progress i{display:block;height:100%;background:#315bea}.row{display:grid;grid-template-columns:22px 1fr 65px 28px;gap:7px;align-items:center;padding:10px 8px;border-top:1px solid #eee}.row input[type=checkbox]{width:18px;height:18px;accent-color:#315bea}.row.done b{text-decoration:line-through;color:#98a2b3}.why{display:block;color:#687386;font-size:11px;margin-top:3px}.qty{text-align:center;padding:7px}.x{border:0;border-radius:8px;background:#fff0f0;color:#b42318;height:30px;font-weight:bold}.addrow{display:flex;gap:7px;padding:10px;border-top:1px solid #eee}.addrow input{flex:1;min-width:0;padding:10px;border:1px solid #dce2ec;border-radius:10px}@media(max-width:640px){.grid{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><header><div class="wrap"><div class="bar"><b>✓ CheckList · Smart Travel V1</b><div class="langs"><button onclick="setLang('de')">DE</button><button onclick="setLang('ar')">AR</button><button onclick="setLang('en')">EN</button></div></div><div class="hero"><h1 id="hero"></h1><p id="sub"></p></div></div></header><main><div class="tabs"><button class="tab active" id="travelTab"></button><button class="tab locked" onclick="alert(T.locked)">🎒 Schule</button><button class="tab locked" onclick="alert(T.locked)">👶 Baby</button><button class="tab locked" onclick="alert(T.locked)">🛒 Einkauf</button></div><section class="panel" id="app"></section></main>
+<script>
+const D={
+de:{hero:"Packen, aber smart.",sub:"Passende Packliste nach Reiseziel, Datum, Saison und Person.",title:"Smart Travel Packing",travel:"✈️ Travel",dest:"Reiseziel",from:"Hinreise",to:"Rückreise",people:"Wer reist mit?",adult:"+ Erwachsener",child:"+ Kind",baby:"+ Baby",name:"Name",age:"Alter",gender:"Geschlecht",male:"Männlich",female:"Weiblich",na:"Nicht angegeben",remove:"Person löschen",make:"✨ Packliste erstellen / aktualisieren",climate:"🌦️ Klima- und Wettercheck",hint:"Wenn die Reise nah genug ist, wird eine Wettervorhersage geladen.",list:"🧳 Persönliche Packlisten",listHint:"Du kannst jeden Artikel hinzufügen, löschen, abhaken oder die Menge ändern. Änderungen bleiben auf diesem Gerät gespeichert.",add:"Hinzufügen",placeholder:"Artikelname, z. B. Kopfhörer",done:"erledigt",locked:"Kommt in einer späteren Version.",required:"Bitte Ziel sowie Hin- und Rückreisedatum angeben.",dateerr:"Rückreise muss am oder nach dem Hinreisedatum liegen.",forecast:"Noch keine genaue Vorhersage verfügbar; typische Saisonbedingungen werden verwendet.",cold:"Kalte Saison: warme Kleidung und wetterfeste Schuhe priorisiert.",mild:"Übergangszeit: Kleidung in Schichten und eine leichte Jacke.",hot:"Warme Saison: leichte Kleidung; Sonnen- und Badeartikel nur bei passender Reise.",items:{shirts:"T-Shirts",bottom:"Hosen / Shorts",under:"Unterhosen / Slips",pajama:"Schlafanzüge",socks:"Socken",swim:"Badebekleidung",bra:"BHs",strings:"Strings",dress:"Kleider",shoes:"Alltagsschuhe",boots:"Warme / wetterfeste Schuhe",sandals:"Sandalen / Flip-Flops",sun:"Sonnenbrille",spf:"Sonnencreme",towel:"Strandhandtuch",meds:"Persönliche Medikamente",charger:"Handyladegerät",cable:"Ladekabel",power:"Powerbank",razor:"Rasierer / Rasierklinge",brush:"Zahnbürste",paste:"Zahnpasta",deodorant:"Deodorant",shampoo:"Shampoo",comb:"Kamm / Bürste",umbrella:"Regenschirm",rain:"Regenjacke",light:"Leichte Jacke",warm:"Warmer Pullover",coat:"Winterjacke",gloves:"Handschuhe",hat:"Warme Mütze",diaper:"Windeln",wipes:"Feuchttücher",outfit:"Wechsel-Outfits",body:"Bodys",cream:"Wundschutzcreme",bottle:"Babyflaschen",milk:"Milch / Nahrung",pacifier:"Schnuller",blanket:"Decke",stroller:"Kinderwagen / Autositz",bib:"Lätzchen",toy:"Lieblingsspielzeug"}},
+ar:{hero:"حضّر سفرتك بطريقة ذكية.",sub:"قائمة حسب الوجهة والتاريخ والموسم وكل شخص.",title:"قائمة السفر الذكية",travel:"✈️ السفر",dest:"الوجهة",from:"الذهاب",to:"العودة",people:"مين مسافر معك؟",adult:"+ بالغ",child:"+ طفل",baby:"+ بيبي",name:"الاسم",age:"العمر",gender:"الجنس",male:"ذكر",female:"أنثى",na:"غير محدد",remove:"حذف الشخص",make:"✨ إنشاء / تحديث القائمة",climate:"🌦️ فحص المناخ والطقس",hint:"منجيب التوقعات إذا موعد السفر قريب.",list:"🧳 قائمة كل شخص",listHint:"ضيف أو احذف أغراض، علّم عليها وعدّل الكمية. التغييرات بتنحفظ على هالجهاز.",add:"إضافة",placeholder:"اسم الغرض، مثلاً سماعات",done:"مكتمل",locked:"قريباً بنسخة لاحقة.",required:"عبّي الوجهة وتاريخ الذهاب والعودة.",dateerr:"العودة لازم تكون بنفس يوم الذهاب أو بعده.",forecast:"ما في توقع دقيق بعد؛ عم نستخدم ظروف الموسم المعتادة.",cold:"موسم بارد: ملابس دافئة وأحذية مناسبة للطقس.",mild:"جو معتدل: طبقات ملابس وجاكيت خفيف.",hot:"موسم دافئ: ملابس خفيفة، وأغراض البحر والشمس فقط إذا بتناسب الرحلة.",items:{shirts:"تيشيرتات",bottom:"بناطيل / شورتات",under:"كيلوت / ملابس داخلية",pajama:"بيجامات",socks:"جرابات",swim:"لباس سباحة",bra:"حمالات صدر (BHs)",strings:"سترينغ",dress:"فساتين",shoes:"أحذية يومية",boots:"أحذية دافئة / ضد الطقس",sandals:"صنادل / شبشب",sun:"نظارات شمس",spf:"واقي شمس",towel:"منشفة شاطئ",meds:"أدوية شخصية",charger:"شاحن الهاتف",cable:"كابل شحن",power:"باوربانك",razor:"شفرة / ماكينة حلاقة",brush:"فرشاة أسنان",paste:"معجون أسنان",deodorant:"مزيل عرق",shampoo:"شامبو",comb:"مشط / فرشاة",umbrella:"مظلة",rain:"جاكيت مطر",light:"جاكيت خفيف",warm:"كنزة دافئة",coat:"جاكيت شتوي",gloves:"كفوف",hat:"قبعة شتوية",diaper:"حفاضات",wipes:"مناديل مبللة",outfit:"أطقم تبديل",body:"بودي",cream:"كريم تسلخات",bottle:"رضّاعات",milk:"حليب / أكل",pacifier:"لهاية",blanket:"بطانية",stroller:"عربة / كرسي سيارة",bib:"مراويل",toy:"لعبة مفضلة"}},
+en:{hero:"Pack smarter.",sub:"A packing list based on destination, dates, season and each traveller.",title:"Smart Travel Packing",travel:"✈️ Travel",dest:"Destination",from:"Departure",to:"Return",people:"Who is travelling?",adult:"+ Adult",child:"+ Child",baby:"+ Baby",name:"Name",age:"Age",gender:"Gender",male:"Male",female:"Female",na:"Not specified",remove:"Remove person",make:"✨ Create / update list",climate:"🌦️ Climate and weather check",hint:"A forecast is checked when the trip is close enough.",list:"🧳 Personal packing lists",listHint:"Add, remove, check off items and change quantities. Changes are saved on this device.",add:"Add",placeholder:"Item name, e.g. headphones",done:"done",locked:"Coming in a future version.",required:"Enter destination and both travel dates.",dateerr:"Return must be on or after departure.",forecast:"No precise forecast yet; typical seasonal conditions are used.",cold:"Cold season: warm clothing and weatherproof shoes.",mild:"Mild season: layers and a light jacket.",hot:"Warm season: light clothes; sun and swim items only when suitable.",items:{shirts:"T-shirts",bottom:"Trousers / shorts",under:"Briefs / underwear",pajama:"Pyjamas",socks:"Socks",swim:"Swimwear",bra:"Bras",strings:"Thongs",dress:"Dresses",shoes:"Everyday shoes",boots:"Warm / weatherproof shoes",sandals:"Sandals / flip-flops",sun:"Sunglasses",spf:"Sunscreen",towel:"Beach towel",meds:"Personal medication",charger:"Phone charger",cable:"Charging cable",power:"Power bank",razor:"Razor / shaver",brush:"Toothbrush",paste:"Toothpaste",deodorant:"Deodorant",shampoo:"Shampoo",comb:"Comb / brush",umbrella:"Umbrella",rain:"Rain jacket",light:"Light jacket",warm:"Warm sweater",coat:"Winter coat",gloves:"Gloves",hat:"Warm hat",diaper:"Diapers",wipes:"Wet wipes",outfit:"Change outfits",body:"Bodysuits",cream:"Nappy cream",bottle:"Baby bottles",milk:"Milk / food",pacifier:"Pacifier",blanket:"Blanket",stroller:"Stroller / car seat",bib:"Bibs",toy:"Favourite toy"}}
+};
+let lang=localStorage.getItem("smartTravelLangEngineV1")||"de",people=[],openId=1,result=null,next=1,form={dest:"",from:"",to:""};
+try{let s=JSON.parse(localStorage.getItem("smartTravelEngineV1")||"null");if(s){lang=s.lang||lang;people=s.people||[];openId=s.openId||openId;result=s.result||null;next=s.next||1;form=s.form||form}}catch(e){}
+if(!people.length)people=[{id:next++,type:"adult",name:"",age:34,gender:"na",custom:[]}];
+const $=id=>document.getElementById(id),T=()=>D[lang],tr=k=>T()[k]||k;
+function save(){form={dest:$("dest")?.value??form.dest,from:$("from")?.value??form.from,to:$("to")?.value??form.to};localStorage.setItem("smartTravelEngineV1",JSON.stringify({lang,people,openId,result,next,form}))}
+function setLang(l){lang=l;render();save()}
+function personLabel(p){if(p.name?.trim())return p.name.trim();let n=people.filter(x=>x.type===p.type).findIndex(x=>x.id===p.id)+1;return (p.type==="adult"?tr("adult"):p.type==="child"?tr("child"):tr("baby")).replace("+ ","")+" "+n}
+function addPerson(type){people.push({id:next++,type,name:"",age:type==="adult"?34:type==="child"?4:0,gender:"na",custom:[]});openId=people.at(-1).id;result=null;render();save()}
+function removePerson(id){people=people.filter(p=>p.id!==id);openId=people[0]?.id;result=null;render();save()}
+function updatePerson(id,k,v){let p=people.find(p=>p.id===id);if(p)p[k]=k==="age"?+v:v;save()}
+
+function season(date,lat=35){
+  const m=new Date(date+"T12:00:00").getMonth()+1, north=lat>=0;
+  if((north&&[12,1,2].includes(m))||(!north&&[6,7,8].includes(m))) return "cold";
+  if((north&&[6,7,8].includes(m))||(!north&&[12,1,2].includes(m))) return "hot";
+  return "mild";
+}
+function destinationProfile(dest){
+  const x=(dest||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+  const beach=/beach|strand|mallorca|malta|cyprus|antalya|alanya|rhodes|crete|sharm|hurghada|marsa alam|red sea|marmaris|bodrum|phuket|cancun|tenerife|gran canaria|fuerteventura|dubai|abu dhabi|doha|resort|coast|kuste/.test(x);
+  const mountain=/alps|mountain|ski|zermatt|tirol|dolomites|mount|berg|snow|schwarzwald/.test(x);
+  const warmBeach=/sharm|hurghada|marsa alam|red sea|dubai|abu dhabi|doha|phuket|cancun/.test(x);
+  const coldClimate=/lapland|tromso|reykjavik|iceland|finland|norway|sweden|alaska/.test(x);
+  return {kind:beach?"beach":mountain?"mountain":"general",warmBeach,coldClimate};
+}
+function effectiveType(p){
+  if(p.type==="baby") return "baby";
+  const age=Number(p.age);
+  if(Number.isFinite(age)&&age<2) return "baby";
+  if(p.type==="child"||(Number.isFinite(age)&&age<13)) return "child";
+  return "adult";
+}
+function tripDays(from,to){
+  const a=new Date(from+"T12:00:00"),b=new Date(to+"T12:00:00");
+  return Math.max(1,Math.min(90,Math.round((b-a)/86400000)+1));
+}
+function build(p,climate,profile,rain,d){
+  const type=effectiveType(p), woman=type==="adult"&&p.gender==="female";
+  const cold=climate==="cold"||(profile.kind==="mountain"&&climate!=="hot");
+  const hot=climate==="hot";
+  const n=Math.max(2,Math.min(14,Math.ceil(Math.min(d,14)*0.62+2)));
+  const underwear=Math.max(3,Math.ceil(Math.min(d,14)*0.85+2));
+  const a=[];
+  const add=(key,qty,reason="personal")=>{ if(qty>0&&!a.some(x=>x[0]===key))a.push([key,qty,reason]); };
+  if(type==="baby"){
+    add("diaper",Math.min(90,d*6+2),"baby");
+    add("wipes",Math.max(2,Math.ceil(d/3)),"baby");
+    add("outfit",Math.max(3,Math.ceil(d*1.2)),"baby");
+    add("body",Math.max(3,Math.ceil(d*1.2)),"baby");
+    add("pajama",Math.max(2,Math.ceil(d*.65)),"baby");
+    add("socks",Math.max(3,Math.ceil(d*.8)),"baby");
+    add("hat",1,"baby"); add("cream",1,"baby");
+    add("bottle",3,"baby"); add("milk",1,"baby"); add("pacifier",2,"baby");
+    add("blanket",1,"baby"); add("stroller",1,"baby");
+    add("bib",Math.max(2,Math.ceil(d*.8)),"baby"); add("toy",1,"baby");
+    add("swim",profile.kind==="beach"&&hot?1:0,"beach");
+    if(hot){add("sun",1,"hot");add("spf",1,"hot");add("light",1,"hot")}
+    if(cold){add("coat",1,"cold");add("warm",2,"cold");add("hat",1,"cold")}
+  } else if(type==="child"){
+    add("shirts",n,"child"); add("bottom",Math.max(2,Math.ceil(n*.8)),"child");
+    add("under",underwear+2,"child"); add("pajama",Math.max(2,Math.ceil(n*.5)),"child");
+    add("socks",Math.max(3,Math.ceil(n*.8)),"child"); add("shoes",1,"child");
+    add("outfit",Math.max(2,Math.ceil(d/3)),"child"); add("toy",1,"child");
+    add("brush",1,"hygiene"); add("paste",1,"hygiene"); add("shampoo",1,"hygiene");
+    if(cold){add("coat",1,"cold");add("warm",Math.max(1,Math.ceil(d/5)),"cold");add("boots",1,"cold");add("gloves",1,"cold");add("hat",1,"cold")}
+    else if(hot){add("light",1,"hot");add("sun",1,"hot");add("spf",1,"hot")}
+    else add("light",1,"mild");
+    if(profile.kind==="beach"){add("swim",Math.min(3,Math.max(1,Math.ceil(d/4))),"beach");add("sandals",1,"beach");add("towel",1,"beach");add("sun",1,"beach");add("spf",1,"beach")}
+    if(rain){add("rain",1,"rain")}
+  } else {
+    add("shirts",n,"adult"); add("bottom",Math.max(2,Math.ceil(n*.72)),"adult");
+    add("under",underwear,"adult"); add("pajama",Math.max(1,Math.ceil(n*.42)),"adult");
+    add("socks",Math.max(3,Math.ceil(n*.72)),"adult"); add("shoes",1,"adult");
+    add("brush",1,"hygiene"); add("paste",1,"hygiene"); add("deodorant",1,"hygiene");
+    add("shampoo",1,"hygiene"); add("comb",1,"hygiene");
+    add("charger",1,"electronics"); add("cable",1,"electronics"); add("power",1,"electronics");
+    if(p.gender==="male")add("razor",1,"hygiene");
+    if(cold){add("coat",1,"cold");add("warm",Math.max(1,Math.ceil(d/7)),"cold");add("boots",1,"cold");add("gloves",1,"cold");add("hat",1,"cold")}
+    else if(hot){add("light",1,"hot");add("sun",1,"hot");add("spf",1,"hot")}
+    else add("light",1,"mild");
+    if(profile.kind==="beach"){add("swim",Math.min(4,Math.max(1,Math.ceil(d/4))),"beach");add("sandals",1,"beach");add("towel",1,"beach");add("sun",1,"beach");add("spf",1,"beach")}
+    if(profile.kind==="mountain"){add("boots",1,"cold");add("warm",1,"cold")}
+    if(woman){add("bra",Math.max(2,Math.ceil(d*.5)),"woman");add("strings",Math.max(2,Math.ceil(d*.5)),"woman");add("dress",Math.max(1,Math.ceil(d/6)),"woman")}
+    if(rain){add("rain",1,"rain");add("umbrella",1,"rain")}
+  }
+  a.push(...(p.custom||[]).map(x=>[x.name,x.qty||1,"custom",x.id]));
+  return a.filter(x=>x[1]>0&&!((p.removed||[]).includes(x[0])));
+}
+function reason(x){
+ if(x[2]==="cold")return tr("cold");
+ if(x[2]==="hot"||x[2]==="beach")return tr("hot");
+ if(x[2]==="woman")return lang==="de"?"Nur für erwachsene Frauen":lang==="ar"?"للأنثى البالغة فقط":"Adult women only";
+ if(x[2]==="baby")return lang==="de"?"Für Babys":lang==="ar"?"مناسب للرضّع":"Baby-specific";
+ if(x[2]==="child")return lang==="de"?"Für Kinder":lang==="ar"?"مناسب للأطفال":"Child-specific";
+ if(x[2]==="hygiene")return lang==="de"?"Hygiene":lang==="ar"?"نظافة شخصية":"Personal hygiene";
+ if(x[2]==="electronics")return lang==="de"?"Elektronik für Erwachsene":lang==="ar"?"إلكترونيات للبالغين":"Adult electronics";
+ if(x[2]==="rain")return lang==="de"?"Bei Regenrisiko":lang==="ar"?"عند احتمال المطر":"If rain is likely";
+ return lang==="de"?"Persönlicher Bedarf":lang==="ar"?"غرض شخصي":"Personal item";
+}
+async function makeList(){
+ let dest=$("dest").value.trim(),from=$("from").value,to=$("to").value;
+ if(!dest||!from||!to)return alert(tr("required"));
+ if(to<from)return alert(tr("dateerr"));
+ const d=tripDays(from,to), profile=destinationProfile(dest), month=+(from.split("-")[1]||"0");
+ let climate=season(from), rain=false;
+ if(profile.coldClimate)climate="cold";
+ if(profile.warmBeach&&[3,4,5,6,7,8,9,10,11].includes(month))climate="hot";
+ let weather=`${tr(climate==="cold"?"cold":climate==="hot"?"hot":"mild")} ${tr("forecast")}`;
+ $("weatherText").textContent=tr("hint");
+ try{
+  const g=await fetch("https://geocoding-api.open-meteo.com/v1/search?name="+encodeURIComponent(dest)+"&count=1&language=en&format=json").then(r=>r.json());
+  const loc=g.results?.[0];
+  if(loc){
+   climate=season(from,loc.latitude);
+   if(profile.coldClimate)climate="cold";
+   if(profile.warmBeach&&[3,4,5,6,7,8,9,10,11].includes(month))climate="hot";
+   const diff=(new Date(from+"T12:00:00")-new Date())/86400000;
+   if(diff>=-1&&diff<=15){
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${from}&end_date=${to}`;
+    const f=await fetch(u).then(r=>r.json());
+    if(f.daily?.temperature_2m_max?.length){
+     const mx=Math.max(...f.daily.temperature_2m_max),mn=Math.min(...f.daily.temperature_2m_min),pr=Math.max(...(f.daily.precipitation_probability_max||[0]));
+     if(profile.warmBeach&&mx>=22)climate="hot";
+     else climate=mx>=26?"hot":mx<12?"cold":"mild";
+     rain=pr>=35;
+     weather=`${loc.name} · ${Math.round(mn)}–${Math.round(mx)} °C · ${lang==="de"?"Regenrisiko":lang==="ar"?"احتمال المطر":"Rain chance"} ${pr}%`;
+    }
+   } else weather=`${loc.name} · ${tr(climate==="cold"?"cold":climate==="hot"?"hot":"mild")} ${tr("forecast")}`;
+  }
+ }catch(e){}
+ result={weather,items:{},checked:{}};
+ people.forEach(p=>{result.items[p.id]=build(p,climate,profile,rain,d);result.checked[p.id]={}});
+ openId=people[0]?.id;
+ $("weatherText").textContent=weather;
+ drawResults();save();
+}
+function toggle(id){openId=id;drawResults();save()}
+function checkItem(pid,i,v){result.checked[pid][i]=v;save();drawResults()}
+function qty(pid,i,v){result.items[pid][i][1]=Math.max(0,+v||0);save();drawResults()}
+function delItem(pid,i){let x=result.items[pid][i],p=people.find(p=>p.id===pid);if(x[3])p.custom=p.custom.filter(c=>c.id!==x[3]);else {p.removed=p.removed||[];p.removed.push(x[0])}result.items[pid].splice(i,1);save();drawResults()}
+function addItem(pid){let inp=$("new-"+pid),name=inp.value.trim();if(!name)return;let p=people.find(p=>p.id===pid),item={id:"x"+Date.now()+Math.random().toString(16).slice(2),name,qty:1};p.custom=p.custom||[];p.custom.push(item);result.items[pid].push([name,1,"custom",item.id]);result.checked[pid][result.items[pid].length-1]=false;save();drawResults()}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function drawResults(){if(!result){$("results").innerHTML="";return}$("results").innerHTML=`<div class="section">${tr("list")}</div><div class="muted">${tr("listHint")}</div>`+people.map(p=>{let a=result.items[p.id]||[],c=result.checked[p.id]||{},n=Object.values(c).filter(Boolean).length;return `<div class="acc ${openId===p.id?"open":""}"><button class="acchead" onclick="toggle(${p.id})">${p.type==="baby"?"👶":p.type==="child"?"🧒":p.gender==="female"?"👩":"👤"} ${esc(personLabel(p))} <span>${n}/${a.length} ${tr("done")}　⌄</span></button><div class="accbody"><div class="progress"><i style="width:${a.length?n/a.length*100:0}%"></i></div>${a.map((x,i)=>`<label class="row ${c[i]?"done":""}"><input type="checkbox" ${c[i]?"checked":""} onchange="checkItem(${p.id},${i},this.checked)"><span><b>${esc(T().items[x[0]]||x[0])}</b><small class="why">${reason(x)}</small></span><input class="qty" type="number" min="0" value="${x[1]}" onchange="qty(${p.id},${i},this.value)"><button class="x" title="${tr("remove")}" onclick="event.preventDefault();delItem(${p.id},${i})">×</button></label>`).join("")}<div class="addrow"><input id="new-${p.id}" placeholder="${tr("placeholder")}"><button class="btn primary" onclick="addItem(${p.id})">+ ${tr("add")}</button></div></div></div>`}).join("")}
+function render(){document.documentElement.lang=lang;$("hero").textContent=tr("hero");$("sub").textContent=tr("sub");$("travelTab").textContent=tr("travel");$("app").innerHTML=`<h2>${tr("title")}</h2><div class="muted">${tr("hint")}</div><div class="grid"><div class="field"><label>${tr("dest")}</label><input id="dest" placeholder="z. B. Beirut, Libanon" value="${esc(form.dest)}"></div><div class="field"><label>${tr("from")}</label><input type="date" id="from" value="${form.from}"></div><div class="field"><label>${tr("to")}</label><input type="date" id="to" value="${form.to}"></div></div><div class="section">${tr("people")}</div>${people.map(p=>`<div class="person"><b>${esc(personLabel(p))}</b><div class="grid"><div class="field"><label>${tr("name")}</label><input value="${esc(p.name)}" oninput="updatePerson(${p.id},'name',this.value);this.closest('.person').querySelector('b').textContent=this.value||'${esc(personLabel(p))}'"></div><div class="field"><label>${tr("age")}</label><input type="number" min="0" value="${p.age}" oninput="updatePerson(${p.id},'age',this.value)"></div>${p.type!=="baby"?`<div class="field"><label>${tr("gender")}</label><select onchange="updatePerson(${p.id},'gender',this.value)"><option value="male" ${p.gender==="male"?"selected":""}>${tr("male")}</option><option value="female" ${p.gender==="female"?"selected":""}>${tr("female")}</option><option value="na" ${p.gender==="na"?"selected":""}>${tr("na")}</option></select></div>`:""}</div><button class="btn" onclick="removePerson(${p.id})">${tr("remove")}</button></div>`).join("")}<div class="actions"><button class="btn" onclick="addPerson('adult')">${tr("adult")}</button><button class="btn" onclick="addPerson('child')">${tr("child")}</button><button class="btn" onclick="addPerson('baby')">${tr("baby")}</button><button class="btn primary" onclick="makeList()">${tr("make")}</button></div><div class="weather"><b>${tr("climate")}</b><div id="weatherText">${result?.weather||tr("hint")}</div></div><div id="results"></div>`;["dest","from","to"].forEach(id=>$(id).addEventListener("change",()=>{form={dest:$("dest").value,from:$("from").value,to:$("to").value};save()}));drawResults()}
+render();
+</script></body></html>
